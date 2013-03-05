@@ -20,6 +20,8 @@ def GETjson(company, raw=True):
 def parse(soup, raw=False):
     """
     """
+    def intify(s):
+        return int(s.replace(',', ''))
     sat_reviews = soup.findAll('span', {'itemprop': 'reviewCount'})[0].text
     sat_score = soup.findAll('span', {'class': 'ratingValue notranslate '})[0].text
     sat_approval = soup.findAll('span', {'class': 'minor gdrHigh'})[0].findAll('tt', {'class': 'notranslate'})[0].text
@@ -31,14 +33,14 @@ def parse(soup, raw=False):
     conn = soup.findAll('div', {'id': 'OverviewInsideConnections'})[0].findAll('tt', {'class': 'notranslate'})[0].text
     salary_mean = soup.findAll('td', {'class': 'mean'})[1].text
     return {'satisfaction': {'score': float(sat_score),
-                             'reviews': int(sat_reviews),
-                             '%approval': int(sat_approval)
+                             'reviews': intify(sat_reviews),
+                             '%approval': intify(sat_approval)
                              },
-            'ceo': {'reviews': int(ceo_reviews),
-                    '%approval': int(ceo_approval),
+            'ceo': {'reviews': intify(ceo_reviews),
+                    '%approval': intify(ceo_approval),
                     'avatar': ceo_avatar,
                     'name': ceo_name
                     },
-            'connections': int(conn),
+            'connections': intify(conn),
             'salary': {'mean': salary_mean + '.00'}
             }

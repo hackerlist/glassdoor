@@ -16,4 +16,5 @@ if not args.company:
 try:
     print GETjson(args.company)
 except Exception as e:
-    print "Something went wrong, could not get JSON for <company:%s>. Traceback: %s" % (company, e)
+    print "Something went wrong, could not get JSON for " \
+        "<company:%s>. Traceback: %s" % (args.company, e)
