@@ -9,4 +9,4 @@ __author__ = [
 __license__ = "public domain"
 __contributors__ = "see AUTHORS"
 
-from glassdoor import GET
+from glassdoor.gd import GET
