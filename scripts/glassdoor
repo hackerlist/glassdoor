@@ -1,3 +1,19 @@
 #!/usr/bin/python
 #-*- coding: utf-8 -*-
 
+import argparse
+import os
+import json
+
+from glassdoor import GETjson
+
+parser = argparse.ArgumentParser(description="Glassdoor API: Look through glassdoor, and see their JSON")
+parser.add_argument('company', nargs='?', metavar='<company>',
+                    help="Name of a company (e.g. dropbox)")
+args = parser.parse_args()
+if not args.company:
+    raise ValueError('No input detected, please enter a company name / identifier')
+try:
+    print GETjson(args.company)
+except Exception as e:
+    print "Something went wrong, could not get JSON for <company:%s>. Traceback: %s" % (company, e)
