@@ -33,7 +33,7 @@ def parse_satisfaction(soup):
     if _soups:
         _soup = _soups[0]
         _data['reviews'] = tryelse(lambda: intify(soup.findAll('span', {'itemprop': 'reviewCount'})[0].text), _data['reviews'])
-        _data['score'] = tryelse(lambda: float(soup.findAll('span', {'class': 'ratingValue notranslate '})[0].text), _data['score']),
+        _data['score'] = tryelse(lambda: float(soup.findAll('span', {'class': 'ratingValue notranslate '})[0].text), _data['score'])
         _data['%approval'] = tryelse(lambda: intify(soup.findAll('span', {'class': 'minor gdrHigh'})[0]\
                                                         .findAll('tt', {'class': 'notranslate'})[0].text), _data['%approval'])
     return _data
