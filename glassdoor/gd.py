@@ -60,11 +60,23 @@ def parse_salary(soup):
         _soup = _soups[0]
         for row in _soup.findAll('tr')[1:]:
             try:
+                mean = row.findAll('td', {'class': 'mean'})[0].findAll('span', {'class': 'minor'})[0].text
+                monthly = True if "mo" in mean else False
+                mean = intify(mean) * 12 if monthly else intify(mean)
+                try:
+                    rang = (row.findAll('div', {'class': 'lowValue'})[0].text,
+                            row.findAll('div', {'class': 'highValue'})[0].text)
+                    if monthly:
+                        rang = [intify(v) * 12 for v in rang]
+                    else:
+                        rang = [intify(v) * 1000 for v in rang]
+                except:
+                    rang = None
+
                 _data.append({'position': row.findAll('tt', {'class': 'i-occ'})[0].text,
                               'samples': intify(row.findAll('p', {'class': 'rowCounts'})[0].findAll('tt')[0].text),
-                              'mean': intify(row.findAll('td', {'class': 'mean'})[0].findAll('span', {'class': 'minor'})[0].text),
-                              'range': (intify(row.findAll('div', {'class': 'lowValue'})[0].text) * 1000,
-                                        intify(row.findAll('div', {'class': 'highValue'})[0].text) * 1000)
+                              'mean': mean,
+                              'range': rang
                               })
             except Exception as e:
                 print e
@@ -72,7 +84,9 @@ def parse_salary(soup):
 
 def parse(soup, raw=False):
     """
+    If none found, show top recommendations as json list
     """
+    #preprocess
     data = {'satisfaction': parse_satisfaction(soup),
             'ceo': parse_ceo(soup),
             'meta': parse_meta(soup),
