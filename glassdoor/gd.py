@@ -82,16 +82,25 @@ def parse_salary(soup):
                 print e
     return _data
 
+def parse_suggestions(soup):
+    comps = soup.findAll('div', {'id': 'SearchResults'})[0]\
+        .findAll('h3', {'class': 'tightTop'})
+    return {'error': 'company not found',
+            'suggestions': [c.text for c in comps]
+            }
+
 def parse(soup, raw=False):
     """
     If none found, show top recommendations as json list
     """
-    #preprocess
-    data = {'satisfaction': parse_satisfaction(soup),
-            'ceo': parse_ceo(soup),
-            'meta': parse_meta(soup),
-            'salary': parse_salary(soup)
-            }
+    if soup.findAll('div', {'class': 'sortBar'}):
+        data = parse_suggestions(soup)
+    else:
+        data = {'satisfaction': parse_satisfaction(soup),
+                'ceo': parse_ceo(soup),
+                'meta': parse_meta(soup),
+                'salary': parse_salary(soup)
+                }
     if raw:
         return json.dumps(data)
     return data
