@@ -20,4 +20,31 @@ From pip:
     >>> from glassdoor import get
     >>> x = get('dropbox')
     >>> x.json()
-    {"satisfaction": {"reviews": 1272, "score": [4.1], "%approval": 90}, "ceo": {"reviews": 492, "%approval": 95, "name": "Larry Page", "avatar": "http://media.glassdoor.com/people/ceo/9079/google-larry-page.jpg"}, "meta": {"connections": 909822, "website": "www.google.com", "name": "Google", "location": "Mountain View, CA"}, "salary": [{"position": "Software Engineer", "range": [50000, 275000], "samples": 2761, "mean": 112985}, {"position": "Senior Software Engineer", "range": [63000, 250000], "samples": 192, "mean": 145682}, {"position": "Software Engineer In Test", "range": [62000, 169000], "samples": 184, "mean": 100435}]}   
+    {'ceo': {'%approval': 100,
+             'avatar': 'http://media.glassdoor.com/people/ceo/415350/dropbox-drew-houston.jpg',
+	     'name': 'Drew Houston',
+             'reviews': 14},
+     'meta': {'Competitors': 'Unknown',
+              'Founded': 'Unknown',
+              'Industry': 'Computer Software',
+              'Type': 'Company - Private',
+              'connections': 0,
+              'location': 'San Francisco, CA',
+              'name': 'Dropbox',
+              'reviews': 16,
+              'score': 4.6,
+              'size': (None, None),
+              'website': 'www.dropbox.com'},
+              'salary': [{'mean': 112688,
+                          'position': 'Software Engineer',
+                          'range': (100000, 138000),
+                          'samples': 4},
+                         {'mean': 78912,
+                          'position': 'Software Engineer',
+                          'range': (69840, 87996),
+                          'samples': 2},
+                         {'mean': 60892,
+                          'position': 'Technical Support Engineer',
+                          'range': (56000, 66000),
+                          'samples': 2}],
+     'satisfaction': {'ratings': 16, 'score': 4.6}}

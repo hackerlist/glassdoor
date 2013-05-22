@@ -10,11 +10,12 @@
     $ pip install glassdoor
 """
 
+import os
 from distutils.core import setup
 
 setup(
     name='glassdoor',
-    version='0.0.2',
+    version='0.0.4',
     url='http://github.com/hackerlist/glassdoor',
     author='mek',
     author_email='m@hackerlist.net',
@@ -32,5 +33,5 @@ setup(
         "scripts/glassdoor"
         ],
     description="Glassdoor Python API",
-    long_description=open('README.md').read(),
+    long_description=open(os.path.join(os.path.dirname(__file__), 'README.md')).read(),
 )

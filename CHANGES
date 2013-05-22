@@ -1,3 +1,7 @@
+v0.0.4, Tue 21, May 2013 -- Crystal
+- glassdoor site changed: revamped all selectors so results are accurate again
+- changed json() to not return json.dumps (py dict, not str)
+
 v0.0.2, Tue 05, March 2012 -- Window
 - rearchitected to be fault tolerant
 - added utils module
