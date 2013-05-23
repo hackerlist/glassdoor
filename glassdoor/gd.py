@@ -72,9 +72,10 @@ def parse_meta(soup):
         return location
 
     def _size(soup):
-        selector = {'class': 'hq overviewItem'}
-        size_span = soup.findAll('span', selector)[2]
-        sizes = size_span.findAll('tt', {'class': 'notranslate'})
+        selector_div = {'class': 'moreData margTop5 subtle'}
+        selector = {'class': 'notranslate'}
+        size_div = soup.findAll('div', selector_div)[0]
+        sizes = size_div.findAll('tt', selector)
         return [intify(size.text) for size in sizes]
 
     data['connections'] = tryelse(partial(_connections, soup),
@@ -86,7 +87,7 @@ def parse_meta(soup):
     data['location'] = tryelse(partial(_location, soup),
                                default='')
     data['size'] = tryelse(partial(_size, soup),
-                           default=(None, None))
+                           default=[None, None])
     data['reviews'] = tryelse(partial(_reviews, soup),
                               default=None)
     data['score'] = tryelse(partial(_score, soup),
