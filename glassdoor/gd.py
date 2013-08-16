@@ -21,9 +21,10 @@ def parse_meta(soup):
     data = {'website': '',
             'name': '',
             'location': '',
+            'logo': '',
             'connections': None,
             'reviews': None,
-            'score': None
+            'score': None,
             }
 
     def _reviews(soup):
@@ -57,6 +58,11 @@ def parse_meta(soup):
         connections = connections_tt[0].text
         return intify(connections)
 
+    def _logo(soup):
+        selector = {'class': 'sqLogo tighten medSqLogo'}
+        logo = soup.findAll('span', selector)[0].findAll('img')[0]['src']
+        return logo
+
     def _website(soup):
         selector = {'class': 'website notranslate txtShadowWhite'}
         website = soup.findAll('span', selector)[0].text
@@ -89,6 +95,8 @@ def parse_meta(soup):
     data['size'] = tryelse(partial(_size, soup),
                            default=[None, None])
     data['reviews'] = tryelse(partial(_reviews, soup),
+                              default=None)
+    data['logo'] = tryelse(partial(_logo, soup),
                               default=None)
     data['score'] = tryelse(partial(_score, soup),
                             default=None)
