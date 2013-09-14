@@ -4,6 +4,7 @@ from utils import intify, tryelse
 from functools import partial
 import json
 
+GLASSDOOR_BASE = 'http://www.glassdoor.com'
 GLASSDOOR_API = 'http://www.glassdoor.com/GD/Reviews/company-reviews.htm'
 
 def get(company):
@@ -15,6 +16,13 @@ def get(company):
     soup = BeautifulSoup(r.content)
     soup.json = partial(parse, soup, raw=True)
     soup.data = lambda: json.loads(soup.json())
+    return soup
+
+def get_company_soup(company_relative_url):
+    params = '%s?clickSource=searchBtn&typedKeyword=' % company_relative_url
+    r = requests.get('%s%s' % (GLASSDOOR_BASE, params))
+    soup = BeautifulSoup(r.content)
+
     return soup
 
 def parse_meta(soup):
@@ -250,18 +258,43 @@ def parse_suggestions(soup):
             'suggestions': _suggestions(soup)
             }
 
+def parse_exact_match(soup):
+    def _exact_match(soup):
+        # One class doesn't work
+        selector_class = {'class' : 'chickletExactMatch chicklet'}
+        exact_match = soup.findAll('i', selector_class)
+        if len(exact_match) != 1:
+            return None
+        else:
+            parent_div = exact_match[0].parent()[0]
+            company_link = parent_div.findAll('a')[0]
+            return company_link['href']
+
+    return _exact_match(soup)
+
+
 def parse(soup, raw=False):
     """
     If none found, show top recommendations as json list
     """
+    data = None
+
     if soup.findAll('div', {'class': 'sortBar'}):
-        data = parse_suggestions(soup)
-    else:
+        exact_match_url = parse_exact_match(soup)
+
+        if exact_match_url == None:
+            data = parse_suggestions(soup)
+        else:
+            # Follow exact match url to get new soup
+            soup = get_company_soup(exact_match_url)
+
+    # Only defined if no exact match found
+    if data == None:
         data = {'satisfaction': parse_satisfaction(soup),
-                'ceo': parse_ceo(soup),
-                'meta': parse_meta(soup),
-                'salary': parse_salary(soup)
-                }
+                    'ceo': parse_ceo(soup),
+                    'meta': parse_meta(soup),
+                    'salary': parse_salary(soup)
+                    }
     if raw:
         return json.dumps(data)
     return data
