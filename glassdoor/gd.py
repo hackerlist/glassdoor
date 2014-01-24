@@ -1,21 +1,36 @@
+#-*- coding: utf-8 -*-
+
+"""
+    glassdoor
+    ~~~~~~~~~
+    Glassdoor unofficial API
+
+    :copyright: (c) 2012 by Hackerlist, Inc
+    :license: BSD, see LICENSE for more details.
+"""
+
+import json
 import requests
+from functools import partial
 from BeautifulSoup import BeautifulSoup
 from utils import intify, tryelse
-from functools import partial
-import json
 
-GLASSDOOR_API = 'http://www.glassdoor.com/GD/Reviews/company-reviews.htm'
+GLASSDOOR_API = 'http://www.glassdoor.com/Reviews'
 
-def get(company):
+def get(company='', company_slug=''):
     """Performs a HTTP GET for a glassdoor page and returns
     BeautifulSoup with a .json() method
     """
-    params = 'clickSource=searchBtn&typedKeyword=&sc.keyword=%s' % company
-    r = requests.get('%s?%s' % (GLASSDOOR_API, params))
+    if not company and not company_slug:
+        raise Exception("glassdoor.gd.get(company='', company_uri=''): "\
+                            " company or company_uri required")
+    params = 'clickSource=searchBtn&typedKeyword=&sc.keyword=%s' % company \
+        if not company_slug else ''
+    api_uri = company_slug or 'company-reviews.htm'
+    url = '%s/%s?%s' % (GLASSDOOR_API, api_uri, params)
+    r = requests.get(url)
     soup = BeautifulSoup(r.content)
-    soup.json = partial(parse, soup, raw=True)
-    soup.data = lambda: json.loads(soup.json())
-    return soup
+    return parse(soup)
 
 def parse_meta(soup):
     data = {'website': '',
@@ -84,22 +99,14 @@ def parse_meta(soup):
         sizes = size_div.findAll('tt', selector)
         return [intify(size.text) for size in sizes]
 
-    data['connections'] = tryelse(partial(_connections, soup),
-                                  default=0)
-    data['website'] = tryelse(partial(_website, soup),
-                              default='')
-    data['name'] = tryelse(partial(_name, soup),
-                           default='')
-    data['location'] = tryelse(partial(_location, soup),
-                               default='')
-    data['size'] = tryelse(partial(_size, soup),
-                           default=[None, None])
-    data['reviews'] = tryelse(partial(_reviews, soup),
-                              default=None)
-    data['logo'] = tryelse(partial(_logo, soup),
-                              default=None)
-    data['score'] = tryelse(partial(_score, soup),
-                            default=None)
+    data['connections'] = tryelse(partial(_connections, soup), default=0)
+    data['website'] = tryelse(partial(_website, soup), default='')
+    data['name'] = tryelse(partial(_name, soup), default='')
+    data['location'] = tryelse(partial(_location, soup), default='')
+    data['size'] = tryelse(partial(_size, soup), default=[None, None])
+    data['reviews'] = tryelse(partial(_reviews, soup), default=None)
+    data['logo'] = tryelse(partial(_logo, soup), default=None)
+    data['score'] = tryelse(partial(_score, soup), default=None)
     data.update(_details(soup))
     return data
 
@@ -250,18 +257,46 @@ def parse_suggestions(soup):
             'suggestions': _suggestions(soup)
             }
 
-def parse(soup, raw=False):
+def direct_match(soup):
+    """Predicate which answers whether an exact company match is found
+    or whether there are suggestions."""
+    return not soup.findAll('div', {'class': 'sortBar'})
+
+def exact_match(soup):
+    """Predicate which answers whether an exact match exists. If an
+    exact match exists, company's uri is returned. Assumes if there
+    are multiple 'exact matches' that the first is correct.
+
+    usage:
+        >>> exact_match(soup)
+        
+    """
+    selector_suggestions = {'class': 'companyData'}
+    selector_exact = {'class' : 'chickletExactMatch chicklet'}
+
+    suggestions = soup.findAll('div', selector_suggestions)
+    if suggestions:
+        top_suggestion = suggestions[0]
+        if top_suggestion.findAll('i', selector_exact):
+            company_link = top_suggestion.findAll('a')[3]
+            company_slug = company_link['href'].split("/")[-1]
+            print company_slug
+            return company_slug
+
+def parse(soup):
     """
     If none found, show top recommendations as json list
     """
-    if soup.findAll('div', {'class': 'sortBar'}):
-        data = parse_suggestions(soup)
-    else:
-        data = {'satisfaction': parse_satisfaction(soup),
+    if direct_match(soup):
+        return {'satisfaction': parse_satisfaction(soup),
                 'ceo': parse_ceo(soup),
                 'meta': parse_meta(soup),
                 'salary': parse_salary(soup)
                 }
-    if raw:
-        return json.dumps(data)
-    return data
+
+    company_slug = exact_match(soup)
+    if company_slug:
+        # Perform a new search, using exact match company_slug
+        return get(company_slug=company_slug).json()
+    
+    return parse_suggestions(soup)
