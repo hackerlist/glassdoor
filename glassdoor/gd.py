@@ -278,7 +278,6 @@ def exact_match(soup):
         if top_suggestion.findAll('i', selector_exact):
             company_link = top_suggestion.findAll('a')[3]
             company_slug = company_link['href'].split("/")[-1]
-            print company_slug
             return company_slug
 
 def parse(soup):
