@@ -1,3 +1,8 @@
+v0.0.6, Fri 24, Jan 2014 -- Quartz
+- GET func 'get' now returns json
+- removed raw param from get
+- merged nrjones8's follow exact match feature
+
 v0.0.4, Tue 21, May 2013 -- Crystal
 - glassdoor site changed: revamped all selectors so results are accurate again
 - changed json() to not return json.dumps (py dict, not str)

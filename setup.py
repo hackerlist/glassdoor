@@ -15,7 +15,7 @@ from distutils.core import setup
 
 setup(
     name='glassdoor',
-    version='0.0.4',
+    version='0.0.6',
     url='http://github.com/hackerlist/glassdoor',
     author='mek',
     author_email='m@hackerlist.net',
