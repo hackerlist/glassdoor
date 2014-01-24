@@ -14,7 +14,7 @@ args = parser.parse_args()
 if not args.company:
     raise ValueError('No input detected, please enter a company name / identifier')
 try:
-    print get(args.company).json()
+    print get(args.company)
 except Exception as e:
     print "Something went wrong, could not get JSON for " \
         "<company:%s>. Traceback: %s" % (args.company, e)
