@@ -282,19 +282,19 @@ def parse(soup, raw=False):
     if soup.findAll('div', {'class': 'sortBar'}):
         exact_match_url = parse_exact_match(soup)
 
-        if exact_match_url == None:
+        if exact_match_url is None:
             data = parse_suggestions(soup)
         else:
             # Follow exact match url to get new soup
             soup = get_company_soup(exact_match_url)
 
     # Only defined if no exact match found
-    if data == None:
+    if data is None:
         data = {'satisfaction': parse_satisfaction(soup),
-                    'ceo': parse_ceo(soup),
-                    'meta': parse_meta(soup),
-                    'salary': parse_salary(soup)
-                    }
+                'ceo': parse_ceo(soup),
+                'meta': parse_meta(soup),
+                'salary': parse_salary(soup)
+                }
     if raw:
         return json.dumps(data)
     return data
