@@ -5,14 +5,14 @@ from functools import partial
 import json
 
 GLASSDOOR_BASE = 'http://www.glassdoor.com'
-GLASSDOOR_API = 'http://www.glassdoor.com/GD/Reviews/company-reviews.htm'
+GLASSDOOR_API = '/GD/Reviews/company-reviews.htm'
 
 def get(company):
     """Performs a HTTP GET for a glassdoor page and returns
     BeautifulSoup with a .json() method
     """
     params = 'clickSource=searchBtn&typedKeyword=&sc.keyword=%s' % company
-    r = requests.get('%s?%s' % (GLASSDOOR_API, params))
+    r = requests.get('%s/%s?%s' % (GLASSDOOR_BASE, GLASSDOOR_API, params))
     soup = BeautifulSoup(r.content)
     soup.json = partial(parse, soup, raw=True)
     soup.data = lambda: json.loads(soup.json())
