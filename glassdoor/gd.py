@@ -18,9 +18,7 @@ from utils import intify, tryelse
 GLASSDOOR_API = 'http://www.glassdoor.com/Reviews'
 
 def get(company='', company_slug=''):
-    """Performs a HTTP GET for a glassdoor page and returns
-    BeautifulSoup with a .json() method
-    """
+    """Performs a HTTP GET for a glassdoor page and returns json"""
     if not company and not company_slug:
         raise Exception("glassdoor.gd.get(company='', company_uri=''): "\
                             " company or company_uri required")
@@ -297,6 +295,6 @@ def parse(soup):
     company_slug = exact_match(soup)
     if company_slug:
         # Perform a new search, using exact match company_slug
-        return get(company_slug=company_slug).json()
+        return get(company_slug=company_slug)
     
     return parse_suggestions(soup)
