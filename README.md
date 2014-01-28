@@ -9,7 +9,7 @@ From source:
    
     $ clone https://github.com/hackerlist/glassdoor
     $ cd glassdoor
-    $ sudo pip install -e .
+    $ sudo pip install .
 
 From pip:
 
@@ -19,7 +19,7 @@ From pip:
 
     >>> from glassdoor import get
     >>> x = get('dropbox')
-    >>> x.json()
+    >>> x
     {'ceo': {'%approval': 100,
              'avatar': 'http://media.glassdoor.com/people/ceo/415350/dropbox-drew-houston.jpg',
 	     'name': 'Drew Houston',
