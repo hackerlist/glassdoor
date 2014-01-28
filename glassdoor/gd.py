@@ -244,11 +244,21 @@ def parse_salary(soup):
 def parse_suggestions(soup):
     def _suggestions(soup):
         """Suggests similar/related companies to query"""
-        selector_id = {'id': 'SearchResults'}
-        selector_h3 = {'class': 'tightTop'}
-        companies_div = soup.findAll('div', selector_id)[0]
-        companies = companies_div.findAll('h3', selector_h3)
-        suggestions = [company.text for company in companies]
+        selector_comps = {'class': 'companyData'}
+        companies = soup.findAll('div', selector_comps)
+
+        suggestions = []
+        for company in companies:
+            company_name = company.findAll('h3')[0].text
+            company_links = company.findAll('div', {'class': 'companyLinks'})
+            if company_links:                
+                try:
+                    company_reviews_url = company_links[0].findAll('a')[3]['href']
+                    company_slug = company_reviews_url.split("/")[-1]
+                except IndexError:
+                    company_slug = '' # no reviews for company
+                suggestions.append((company_name, company_slug))
+                    
         return suggestions
 
     return {'error': 'company not found',
