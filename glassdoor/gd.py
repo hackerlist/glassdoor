@@ -253,7 +253,7 @@ def parse_suggestions(soup):
             company_links = company.findAll('div', {'class': 'companyLinks'})
             if company_links:                
                 try:
-                    company_reviews_url = company_links[0].findAll('a')[3]['href']
+                    company_reviews_url = company_links[0].findAll('a')[2]['href']
                     company_slug = company_reviews_url.split("/")[-1]
                 except IndexError:
                     company_slug = '' # no reviews for company
