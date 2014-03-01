@@ -3,9 +3,10 @@
 """
     glassdoor
     ~~~~~~~~~
-    Glassdoor unofficial API
+    Glassdoor unofficial API v1.1
 
     :copyright: (c) 2012 by Hackerlist, Inc
+    :improved by Kevin Wang
     :license: BSD, see LICENSE for more details.
 """
 
@@ -29,7 +30,12 @@ def get(company='', company_slug=''):
         url= '%s/%s' % (GLASSDOOR_API, company_slug)
     r = requests.get(url)
     soup = BeautifulSoup(r.content)
-    return parse(soup)
+    results = parse(soup)
+    if 'suggestions' in results: 
+        for s in results['suggestions']:
+            if company.lower() in s[0].lower():
+                return get(company_slug=s[1])
+    return results
 
 def parse_meta(soup):
     data = {'website': '',
