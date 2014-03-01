@@ -15,17 +15,18 @@ from functools import partial
 from BeautifulSoup import BeautifulSoup
 from utils import intify, tryelse
 
-GLASSDOOR_API = 'http://www.glassdoor.com/Reviews'
+GLASSDOOR_API = 'http://www.glassdoor.com'
 
 def get(company='', company_slug=''):
     """Performs a HTTP GET for a glassdoor page and returns json"""
     if not company and not company_slug:
         raise Exception("glassdoor.gd.get(company='', company_uri=''): "\
                             " company or company_uri required")
-    params = 'clickSource=searchBtn&typedKeyword=&sc.keyword=%s' % company \
-        if not company_slug else ''
-    api_uri = company_slug or 'company-reviews.htm'
-    url = '%s/%s?%s' % (GLASSDOOR_API, api_uri, params)
+    if company_slug == '':
+        api_uri = 'Reviews/company-reviews.htm?clickSource=searchBtn&typedKeyword=&sc.keyword=%s' % company
+        url = '%s/%s' % (GLASSDOOR_API, api_uri)
+    else:
+        url= '%s/%s' % (GLASSDOOR_API, company_slug)
     r = requests.get(url)
     soup = BeautifulSoup(r.content)
     return parse(soup)
@@ -253,8 +254,8 @@ def parse_suggestions(soup):
             company_links = company.findAll('div', {'class': 'companyLinks'})
             if company_links:                
                 try:
-                    company_reviews_url = company_links[0].findAll('a')[2]['href']
-                    company_slug = company_reviews_url.split("/")[-1]
+                    company_reviews_url = company_links[0].findAll('a')[0]['href']
+                    company_slug = company_reviews_url
                 except IndexError:
                     company_slug = '' # no reviews for company
                 suggestions.append((company_name, company_slug))
@@ -286,8 +287,8 @@ def exact_match(soup):
     if suggestions:
         top_suggestion = suggestions[0]
         if top_suggestion.findAll('i', selector_exact):
-            company_link = top_suggestion.findAll('a')[3]
-            company_slug = company_link['href'].split("/")[-1]
+            company_link = top_suggestion.findAll('a')[1]
+            company_slug = company_link['href']
             return company_slug
 
 def parse(soup):
