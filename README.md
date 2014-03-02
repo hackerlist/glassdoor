@@ -1,6 +1,14 @@
 glassdoor
 =========
 
+.. image:: https://badge.fury.io/py/glassdoor.png
+    :target: http://badge.fury.io/py/glassdoor
+
+.. image:: https://pypip.in/d/glassdoor/badge.png
+        :target: https://crate.io/packages/glassdoor/
+
+![Build Status](https://travis-ci.org/glassdoor.png)
+
 Python API for Glassdoor.com
 
 ## Install

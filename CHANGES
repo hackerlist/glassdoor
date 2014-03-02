@@ -1,3 +1,8 @@
+v0.0.8, Sat 01, Mar 2014 -- Amethyst
+- Fixes overview pages from multiple matches (kswang)
+- Refactored suggestions and exact_match
+- Added test cases + travisci
+
 v0.0.6, Fri 24, Jan 2014 -- Quartz
 - GET func 'get' now returns json
 - removed raw param from get
