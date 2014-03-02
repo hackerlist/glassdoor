@@ -3,10 +3,9 @@
 """
     glassdoor
     ~~~~~~~~~
-    Glassdoor unofficial API v1.1
+    Glassdoor unofficial API
 
     :copyright: (c) 2012 by Hackerlist, Inc
-    :improved by Kevin Wang
     :license: BSD, see LICENSE for more details.
 """
 
@@ -17,24 +16,24 @@ from BeautifulSoup import BeautifulSoup
 from utils import intify, tryelse
 
 GLASSDOOR_API = 'http://www.glassdoor.com'
+REVIEWS_URL = 'Reviews/company-reviews.htm'
 
 def get(company='', company_slug=''):
     """Performs a HTTP GET for a glassdoor page and returns json"""
     if not company and not company_slug:
         raise Exception("glassdoor.gd.get(company='', company_uri=''): "\
                             " company or company_uri required")
-    if company_slug == '':
-        api_uri = 'Reviews/company-reviews.htm?clickSource=searchBtn&typedKeyword=&sc.keyword=%s' % company
-        url = '%s/%s' % (GLASSDOOR_API, api_uri)
+    payload = {}
+    if not company_slug:
+        payload.update({'clickSource': 'searchBtn',
+                        'sc.keyword': company
+                        })
+        url = '%s/%s' % (GLASSDOOR_API, REVIEWS_URL)
     else:
         url= '%s/%s' % (GLASSDOOR_API, company_slug)
-    r = requests.get(url)
+    r = requests.get(url, params=payload)
     soup = BeautifulSoup(r.content)
     results = parse(soup)
-    if 'suggestions' in results: 
-        for s in results['suggestions']:
-            if company.lower() in s[0].lower():
-                return get(company_slug=s[1])
     return results
 
 def parse_meta(soup):
@@ -248,69 +247,61 @@ def parse_salary(soup):
                 print e
     return data
 
-def parse_suggestions(soup):
-    def _suggestions(soup):
-        """Suggests similar/related companies to query"""
-        selector_comps = {'class': 'companyData'}
-        companies = soup.findAll('div', selector_comps)
-
-        suggestions = []
-        for company in companies:
-            company_name = company.findAll('h3')[0].text
-            company_links = company.findAll('div', {'class': 'companyLinks'})
-            if company_links:                
-                try:
-                    company_reviews_url = company_links[0].findAll('a')[0]['href']
-                    company_slug = company_reviews_url
-                except IndexError:
-                    company_slug = '' # no reviews for company
-                suggestions.append((company_name, company_slug))
-                    
-        return suggestions
-
-    return {'error': 'company not found',
-            'suggestions': _suggestions(soup)
-            }
-
-def direct_match(soup):
-    """Predicate which answers whether an exact company match is found
-    or whether there are suggestions."""
+def is_direct_match(soup):
+    """Predicate which answers whether soup represents an exact
+    company match. The alternative is that suggestions were returned
+    """
     return not soup.findAll('div', {'class': 'sortBar'})
 
-def exact_match(soup):
-    """Predicate which answers whether an exact match exists. If an
-    exact match exists, company's uri is returned. Assumes if there
-    are multiple 'exact matches' that the first is correct.
+def parse_suggestions(soup):
+    """Suggests similar/related companies to query"""
+    selector_comps = {'class': 'companyData'}
+    companies = soup.findAll('div', selector_comps)
 
-    usage:
-        >>> exact_match(soup)
-        
-    """
-    selector_suggestions = {'class': 'companyData'}
-    selector_exact = {'class' : 'chickletExactMatch chicklet'}
+    def is_exact_match(c):
+        """Determines if this company suggestion has an [exact match]
+        html label or whether its name matches the company name the
+        user searched for
+        """
+        selector_exact = {'class' : 'chickletExactMatch chicklet'}
+        searched_name = soup.findAll('input', {'name': 'sc.keyword'})[0]['value']
+        actual_name = c.findAll('h3')[0].text
+        names_match = searched_name.lower() == actual_name.lower()
+        exact_tag = bool(c.findAll('i', selector_exact))
+        return exact_tag or names_match
 
-    suggestions = soup.findAll('div', selector_suggestions)
-    if suggestions:
-        top_suggestion = suggestions[0]
-        if top_suggestion.findAll('i', selector_exact):
-            company_link = top_suggestion.findAll('a')[1]
-            company_slug = company_link['href']
-            return company_slug
+    def parse_suggestion(c):
+        return {
+            'name': c.findAll('h3')[0].text,
+            'slug': c.findAll('a')[1]['href'],
+            'exact': is_exact_match(c)
+            }
+    
+    suggestions = []
+    for c in companies:
+        try:
+            suggestions.append(parse_suggestion(c))
+        except IndexError as e:
+            pass
+            
+    return suggestions
 
-def parse(soup):
+def parse(soup, company_slug=""):
+    """Parses the results for a company search and return the results
+    if is_direct_match. If no company is found, a list of suggestions
+    are returned as dict. If one such recommendation is found to be an
+    exact match, re-perform request for this exact match
     """
-    If none found, show top recommendations as json list
-    """
-    if direct_match(soup):
+
+    if is_direct_match(soup):
         return {'satisfaction': parse_satisfaction(soup),
                 'ceo': parse_ceo(soup),
                 'meta': parse_meta(soup),
                 'salary': parse_salary(soup)
                 }
 
-    company_slug = exact_match(soup)
-    if company_slug:
-        # Perform a new search, using exact match company_slug
-        return get(company_slug=company_slug)
-    
-    return parse_suggestions(soup)
+    suggestions = parse_suggestions(soup)
+    exact_match = next((s for s in suggestions if s['exact']), None)
+    if exact_match:
+        return get(company_slug=exact_match['slug'])
+    return suggestions
