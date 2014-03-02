@@ -1,6 +1,8 @@
 glassdoor
 =========
 
+[![Build Status](https://travis-ci.org/hackerlist/glassdoor.png)](https://travis-ci.org/hackerlist/glassdoor) [![Build Status](https://badge.fury.io/py/glassdoor.png)](http://badge.fury.io/py/glassdoor) [![Build Status](https://pypip.in/d/glassdoor/badge.png)](https://crate.io/packages/glassdoor/)
+
 Python API for Glassdoor.com
 
 ## Install
