@@ -2,6 +2,7 @@ v0.0.8, Sat 01, Mar 2014 -- Amethyst
 - Fixes overview pages from multiple matches (kswang)
 - Refactored suggestions and exact_match
 - Added test cases + travisci
+- Fixed exact-match edge cases (Facebook) - 20140-03-02, Sun
 
 v0.0.6, Fri 24, Jan 2014 -- Quartz
 - GET func 'get' now returns json
