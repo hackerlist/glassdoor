@@ -18,20 +18,20 @@ from utils import intify, tryelse
 GLASSDOOR_API = 'http://www.glassdoor.com'
 REVIEWS_URL = 'Reviews/company-reviews.htm'
 
-def get(company='', company_slug=''):
+def get(company='', company_uri=''):
     """Performs a HTTP GET for a glassdoor page and returns json"""
-    if not company and not company_slug:
+    if not company and not company_uri:
         raise Exception("glassdoor.gd.get(company='', company_uri=''): "\
                             " company or company_uri required")
     payload = {}
-    if not company_slug:
+    if not company_uri:
         payload.update({'clickSource': 'searchBtn',
                         'sc.keyword': company
                         })
-        url = '%s/%s' % (GLASSDOOR_API, REVIEWS_URL)
+        uri = '%s/%s' % (GLASSDOOR_API, REVIEWS_URL)
     else:
-        url= '%s/%s' % (GLASSDOOR_API, company_slug)
-    r = requests.get(url, params=payload)
+        uri = '%s%s' % (GLASSDOOR_API, company_uri)
+    r = requests.get(uri, params=payload)
     soup = BeautifulSoup(r.content)
     results = parse(soup)
     return results
@@ -273,7 +273,7 @@ def parse_suggestions(soup):
     def parse_suggestion(c):
         return {
             'name': c.findAll('h3')[0].text,
-            'slug': c.findAll('a')[1]['href'],
+            'uri': c.findAll('a')[1]['href'],
             'exact': is_exact_match(c)
             }
     
@@ -286,7 +286,7 @@ def parse_suggestions(soup):
             
     return suggestions
 
-def parse(soup, company_slug=""):
+def parse(soup):
     """Parses the results for a company search and return the results
     if is_direct_match. If no company is found, a list of suggestions
     are returned as dict. If one such recommendation is found to be an
@@ -303,5 +303,5 @@ def parse(soup, company_slug=""):
     suggestions = parse_suggestions(soup)
     exact_match = next((s for s in suggestions if s['exact']), None)
     if exact_match:
-        return get(company_slug=exact_match['slug'])
+        return get(company_uri=exact_match['uri'])
     return suggestions
