@@ -214,6 +214,8 @@ def parse_salary(soup):
         mean_td = soup.findAll('td', selector_td)[0]
         mean_span = mean_td.findAll('span', selector_span)[0]
         mean = mean_span.text
+        if mean == 'n/a':
+            return 'n/a', False
         monthly = True if "mo" in mean else False
         mean = intify(mean) * 12 if monthly else intify(mean)
         return mean, monthly
