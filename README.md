@@ -1,6 +1,8 @@
 glassdoor
 =========
 
+WARNING: This project is predominantly defunct. Glassdoor has several mechanisms for imposing captchas for various user agents and obfusticating identifiers to prevent crawling. Pull requests to circumvent this welcome
+
 [![Build Status](https://travis-ci.org/hackerlist/glassdoor.png)](https://travis-ci.org/hackerlist/glassdoor) [![Build Status](https://badge.fury.io/py/glassdoor.png)](http://badge.fury.io/py/glassdoor) [![Build Status](https://pypip.in/d/glassdoor/badge.png)](https://crate.io/packages/glassdoor/)
 
 Python API for Glassdoor.com
